@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunicado de Alteração de Plano de Saúde</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+    <div id="form-container" class="max-w-2xl w-full glass-effect rounded-2xl shadow-xl border border-slate-200 overflow-hidden transition-all duration-500">
+        <!-- Header -->
+        <div class="bg-blue-700 p-8 text-white">
+            <h1 class="text-2xl font-bold mb-2">Comunicado Importante</h1>
+            <p class="text-blue-100 opacity-90">Atualização de Categoria de Plano de Saúde</p>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8">
+            <div class="prose prose-slate max-w-none mb-8 text-slate-700 leading-relaxed">
+                <p class="font-semibold text-lg text-slate-900">Prezado(a) Colaborador(a),</p>
+                <p>
+                    Informamos que, devido a renegociações e ajustes nas condições contratuais com as nossas operadoras de saúde parceiras, haverá uma alteração na categoria do seu plano atual.
+                </p>
+                <p>
+                    Esta mudança visa manter a sustentabilidade do benefício e garantir a continuidade do atendimento de qualidade a todos os nossos beneficiários. Ressaltamos que a cobertura assistencial básica prevista no Rol de Procedimentos da ANS permanece garantida conforme a nova categoria designada.
+                </p>
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-4 my-6">
+                    <p class="text-amber-800 text-sm italic">
+                        Ao prosseguir, você confirma que recebeu e compreendeu as informações sobre a mudança contratual.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form id="health-form" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-700 mb-1">E-mail Corporativo ou Pessoal</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        required 
+                        placeholder="seu.nome@exemplo.com"
+                        class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    >
+                </div>
+
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500">
+                    </div>
+                    <div class="ml-3 text-sm text-slate-600">
+                        <label for="terms">Declaro estar ciente da alteração na categoria do meu plano de saúde.</label>
+                    </div>
+                </div>
+
+                <button 
+                    type="submit" 
+                    id="submit-btn"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-lg shadow-lg shadow-blue-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                    Confirmar Ciência
+                </button>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-slate-50 p-4 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-400 uppercase tracking-widest">Departamento de Recursos Humanos</p>
+        </div>
+    </div>
+
+    <!-- Success Message (Hidden by default) -->
+    <div id="success-card" class="hidden max-w-md w-full bg-white p-8 rounded-2xl shadow-2xl text-center animate-in fade-in zoom-in duration-300">
+        <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900 mb-2">Recebido com Sucesso!</h2>
+        <p class="text-slate-600 mb-6">Sua confirmação de ciência foi registrada em nosso sistema de controle.</p>
+        <button onclick="location.reload()" class="text-blue-600 font-medium hover:underline">Voltar ao início</button>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="error-toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hidden">
+        Ocorreu um erro ao enviar. Tente novamente.
+    </div>
+
+    <script>
+        const form = document.getElementById('health-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const formContainer = document.getElementById('form-container');
+        const successCard = document.getElementById('success-card');
+        const errorToast = document.getElementById('error-toast');
+
+        // URL do Google Apps Script (Você precisará gerar uma e colocar aqui)
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/a/macros/ifood.com.br/s/AKfycbx1wDC4M0kU4O9OsQUf_KaPw7OjPcypEf56h-0fRqYLVdnO_ozOk31TJ5ZPZ7FVul0HzA/exec';
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI Feedback
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processando...
+            `;
+
+            const formData = new FormData(form);
+            const data = {
+                email: formData.get('email'),
+                timestamp: new Date().toLocaleString('pt-BR'),
+                userAgent: navigator.userAgent
+            };
+
+            try {
+                // Simulação de envio (já preparado para o Google Script)
+                // Substitua 'fetch' pelo endpoint real se usar Apps Script
+                
+                // Exemplo de integração real via POST:
+                /*
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Importante para Google Scripts
+                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                */
+
+                // Mock de sucesso para demonstração local
+                setTimeout(() => {
+                    formContainer.classList.add('hidden');
+                    successCard.classList.remove('hidden');
+                    console.log('Dados enviados:', data);
+                }, 1500);
+
+            } catch (error) {
+                console.error('Erro:', error);
+                errorToast.classList.remove('hidden');
+                setTimeout(() => errorToast.classList.add('hidden'), 3000);
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Confirmar Ciência';
+            }
+        });
+    </script>
+</body>
+</html>
